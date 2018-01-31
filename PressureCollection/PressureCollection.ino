@@ -19,7 +19,7 @@
 #define LCK  13
 #define SRV  11
 
-Servo myservo;  // create servo object to control a servo
+Servo myServo;  // create servo object to control a servo
 
 HX711 scale1(DAT1, CLK1);
 HX711 scale2(DAT2, CLK2);
@@ -30,6 +30,9 @@ int num_sensors = 4;
 int num_cent = 3;
 int lastClass = -1;
 
+int servoLockPos = 0;
+
+int servoUnlockPos = servoLockPos + 45;
  
 float cen[][4] = {{ 0.0, 0.0, 0.0, 0.0},{ 0.0263620387, 0.0957820738,  0.0466559266,  0.869210115 }, {0.292228095, 0.315707749, 0.0502654492 , 0.342342627 }};
 
@@ -54,6 +57,8 @@ void setup() {
   scale3.tare(); //reset the scale to 0
   scale4.tare(); //reset the scale to 0
 
+
+  myServo.attach(SRV);
 }
 
 float euc_dist(float a[], float b[]) {
@@ -111,8 +116,14 @@ void loop() {
   //Serial.print(",");
 //  scale3_val = abs(scale3.get_units()), 1;  
 //
-
-    scale3_val = 0;
+  ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+  // DANGER MIGHT CAUSE UNEXPECTED BEHAVIOUR, NOT USING SCALE 3 //
+  ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
+   scale3_val = 0;
 //  Serial.print(",");
   scale4_val = abs(scale4.get_units()), 1;
 
@@ -147,19 +158,30 @@ void loop() {
 
   if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)
   {
+    // LOCK
     if (total / recent_avg_total < 0.7) {
-      digitalWrite(LCK, LOW);  
+      digitalWrite(LCK, HIGH);  
       curr_state = 1;
+      // MOVE SERVO
+      for (int pos = myServo.read(); pos < servoLockPos; pos++) {
+        myServo.write(pos);
+        delay(15);
+      }
+      delay(1000);
+      digitalWrite(LCK,LOW);
+      
     }
   } else if (curr_state != 0 && lastClass != 2 && currClass != 0) {
-
+    // UNLOCK
     if (recent_avg_total / total < 0.7) {
-
-        digitalWrite(LCK, HIGH);  
-        curr_state = 0;
+      // MOVE SERVO
+      for (int pos = myServo.read(); pos < servoLockPos; pos++) {
+        myServo.write(pos);
+        delay(15);
+      }
+        //digitalWrite(LCK, LOW);
+      curr_state = 0;
     }
-    
-
   }
   
   recent_avg_total = total;
