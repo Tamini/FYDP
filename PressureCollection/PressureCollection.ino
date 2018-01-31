@@ -10,13 +10,14 @@
 
 #define DAT1  2 //DAT Pin on HX711
 #define CLK1  3 //CLK Pin on HX711
-#define DAT2  4 
+#define DAT2  6 
 #define CLK2  5
-#define DAT3  6
-#define CLK3  7
+#define DAT3  10
+#define CLK3  9
 #define DAT4  8
-#define CLK4  9
-#define LCK  12
+#define CLK4  7
+#define LCK  13
+#define SRV  11
 
 Servo myservo;  // create servo object to control a servo
 
