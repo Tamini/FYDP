@@ -152,7 +152,7 @@ void loop() {
   if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)
   {
     if (total / recent_avg_total < 0.7) {
-      Serial.println("Lock");
+      if (!COLLECT_DATA) Serial.println("Lock");
       digitalWrite(LCK, LOW);  
       curr_state = 1;
     }
@@ -160,7 +160,7 @@ void loop() {
 
     if (recent_avg_total / total < 0.7) {
         delay(250);
-        Serial.println("Unlock");
+        if (!COLLECT_DATA) Serial.println("Unlock");
         digitalWrite(LCK, HIGH);  
         curr_state = 0;
     }
