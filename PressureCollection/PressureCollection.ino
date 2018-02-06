@@ -7,17 +7,22 @@
 #define calibration_factor_3 -19520.0 //?????
 #define calibration_factor_4 -19650.00 //?????
 
-
 #define DAT1  2 //DAT Pin on HX711
 #define CLK1  3 //CLK Pin on HX711
 #define DAT2  6 
 #define CLK2  5
-#define DAT3  10
-#define CLK3  9
-#define DAT4  8
-#define CLK4  7
+#define DAT3  8
+#define CLK3  7
+#define DAT4  10
+#define CLK4  9
 #define LCK  13
-#define SRV  11
+
+
+// If it's false, it'll only show lock/unlock messages
+#define COLLECT_DATA false
+
+// If we do enable this, it might mess up our classification
+#define ENABLE_THIRD_SENSOR false
 
 Servo myservo;  // create servo object to control a servo
 
@@ -71,14 +76,9 @@ int classify(float input[]) {
   
   for (int classifier = 0; classifier < num_cent; classifier++) {
     float dist = euc_dist(input, cen[classifier]);
-    //Serial.print('Dist: ');
-   // Serial.println(dist);
     if (dist < lowestDist) {
       lowestDist = dist;
       lowestClass = classifier;
-      
-//      Serial.print("Distance:");
-//      Serial.print(dist);
     }
   }
   
@@ -102,18 +102,13 @@ void loop() {
   float total = 0.00;
 
   scale1_val = abs(scale1.get_units()), 1;
-  //Serial.print(scale1_val, 1); //scale.get_units() returns a float
-  
-  //Serial.print(",");
   scale2_val = abs(scale2.get_units()), 1;
-  //Serial.print(scale2_val, 1); //scale.get_units() returns a float
-   
-  //Serial.print(",");
-//  scale3_val = abs(scale3.get_units()), 1;  
-//
+  scale3_val = 0;
 
-    scale3_val = 0;
-//  Serial.print(",");
+  if (ENABLE_THIRD_SENSOR) {
+    scale3_val = abs(scale3.get_units()), 1;  
+  }
+
   scale4_val = abs(scale4.get_units()), 1;
 
   total = (scale1_val + scale2_val + scale3_val + scale4_val);
@@ -134,6 +129,15 @@ void loop() {
    if (scale4_val < 1.5) {
     scale4_val = 0;
   }
+
+
+   if (COLLECT_DATA) {
+    Serial.print(scale1_val, 1);    Serial.print(",");
+    Serial.print(scale2_val, 1);    Serial.print(",");
+    Serial.print(scale3_val, 1);    Serial.print(",");
+    Serial.print(scale4_val, 1);    Serial.print(",");
+    Serial.println(scale1_val + scale2_val + scale3_val + scale4_val, 1);
+  }
   
   scale1_perc = scale1_val/total;
   scale2_perc = scale2_val/total;
@@ -148,13 +152,15 @@ void loop() {
   if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)
   {
     if (total / recent_avg_total < 0.7) {
+      Serial.println("Lock");
       digitalWrite(LCK, LOW);  
       curr_state = 1;
     }
   } else if (curr_state != 0 && lastClass != 2 && currClass != 0) {
 
     if (recent_avg_total / total < 0.7) {
-
+        delay(250);
+        Serial.println("Unlock");
         digitalWrite(LCK, HIGH);  
         curr_state = 0;
     }
@@ -164,30 +170,7 @@ void loop() {
   
   recent_avg_total = total;
   
-//  if (currClass == 2 && (lastClass == 0 ||lastClass == 1))
-//    Serial.println("UNLOCK");
-//
-//  else if (currClass == 1 && lastClass == 2)
-//    Serial.println("LOCK");
-
   lastClass = currClass;
 
-//  Serial.print(", ");
 
-  
-//
-  Serial.print(scale1_val, 1);    Serial.print(",");
-  Serial.print(scale2_val, 1);    Serial.print(",");
-  Serial.print(scale3_val, 1);    Serial.print(",");
-
-  
-  Serial.print(scale4_val, 1); //scale.get_units() returns a float
-
-   
-    
-  Serial.print(",");
-  Serial.println(scale1_val + scale2_val + scale3_val + scale4_val, 1);
-
- 
-//  delay(500);
 }
