@@ -15,6 +15,7 @@
 #define CLK3  7
 #define DAT4  10
 #define CLK4  9
+#define OVR  12
 #define LCK  13
 
 
@@ -34,6 +35,7 @@ HX711 scale4(DAT4, CLK4);
 int num_sensors = 4;
 int num_cent = 3;
 int lastClass = -1;
+boolean override = false;
 
  
 float cen[][4] = {{ 0.0, 0.0, 0.0, 0.0},{ 0.0263620387, 0.0957820738,  0.0466559266,  0.869210115 }, {0.292228095, 0.315707749, 0.0502654492 , 0.342342627 }};
@@ -130,7 +132,9 @@ void loop() {
     scale4_val = 0;
   }
 
-
+  int over_int = digitalRead(OVR);
+  override = true ? over_int == 1 : false;
+  
    if (COLLECT_DATA) {
     Serial.print(scale1_val, 1);    Serial.print(",");
     Serial.print(scale2_val, 1);    Serial.print(",");
@@ -148,9 +152,13 @@ void loop() {
 
   int currClass = classify(scales);
 
-
-  if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)
-  {
+  if (override) {
+    
+    if (!COLLECT_DATA) Serial.println("OVERRIDE LOCK");
+    digitalWrite(LCK, HIGH);
+    curr_state = 1;
+  } else if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0) {
+    
     if (total / recent_avg_total < 0.7) {
       if (!COLLECT_DATA) Serial.println("Lock");
       digitalWrite(LCK, LOW);  
