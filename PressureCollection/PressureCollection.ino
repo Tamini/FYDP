@@ -15,7 +15,7 @@
 #define CLK3  7
 #define DAT4  10
 #define CLK4  9
-#define OVR  12
+#define OVR  A1
 #define LCK  13
 
 
