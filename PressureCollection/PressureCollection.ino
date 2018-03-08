@@ -152,12 +152,7 @@ void loop() {
 
   int currClass = classify(scales);
 
-  if (override) {
-    
-    if (!COLLECT_DATA) Serial.println("OVERRIDE LOCK");
-    digitalWrite(LCK, HIGH);
-    curr_state = 1;
-  } else if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0) {
+  if (override == true || (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)) {
     
     if (total / recent_avg_total < 0.7) {
       if (!COLLECT_DATA) Serial.println("Lock");
