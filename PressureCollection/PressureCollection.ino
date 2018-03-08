@@ -133,7 +133,7 @@ void loop() {
   }
 
   int over_int = digitalRead(OVR);
-  override = true ? over_int == 1 : false;
+  override = true ? over_int == 1 : override;
   
    if (COLLECT_DATA) {
     Serial.print(scale1_val, 1);    Serial.print(",");
@@ -152,7 +152,12 @@ void loop() {
 
   int currClass = classify(scales);
 
-  if (override == true || (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0)) {
+  if (override) {
+    if (!COLLECT_DATA) Serial.println("Override Lock");
+    digitalWrite(LCK, LOW);
+  }
+
+  if (curr_state != 1 && (currClass == 1 || currClass == 0) && lastClass != 0) {
     
     if (total / recent_avg_total < 0.7) {
       if (!COLLECT_DATA) Serial.println("Lock");
