@@ -116,19 +116,19 @@ void loop() {
   total = (scale1_val + scale2_val + scale3_val + scale4_val);
 
 
-  if (scale1_val < 1.5) {
+  if (scale1_val < 3) {
     scale1_val = 0;
   }
 
-   if (scale2_val < 1.5) {
+   if (scale2_val < 3) {
     scale2_val = 0;
   }
 
-   if (scale3_val < 1.5) {
+   if (scale3_val < 3) {
     scale3_val = 0;
   }
 
-   if (scale4_val < 1.5) {
+   if (scale4_val < 3) {
     scale4_val = 0;
   }
 
