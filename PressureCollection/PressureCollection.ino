@@ -113,35 +113,37 @@ void loop() {
 
   scale4_val = abs(scale4.get_units()), 1;
 
-  total = (scale1_val + scale2_val + scale3_val + scale4_val);
-
-
-  if (scale1_val < 3) {
+  if (scale1_val < 1.5) {
     scale1_val = 0;
   }
 
-   if (scale2_val < 3) {
+   if (scale2_val < 1.5) {
     scale2_val = 0;
   }
 
-   if (scale3_val < 3) {
+   if (scale3_val < 1.5) {
     scale3_val = 0;
   }
 
-   if (scale4_val < 3) {
+   if (scale4_val < 1.5) {
     scale4_val = 0;
   }
 
+  total = (scale1_val + scale2_val + scale3_val + scale4_val) + 1;
+  
   int over_int = digitalRead(OVR);
   override = true ? over_int == 1 : override;
   
-   if (COLLECT_DATA) {
+   if (true) {
     Serial.print(scale1_val, 1);    Serial.print(",");
     Serial.print(scale2_val, 1);    Serial.print(",");
     Serial.print(scale3_val, 1);    Serial.print(",");
     Serial.print(scale4_val, 1);    Serial.print(",");
     Serial.println(scale1_val + scale2_val + scale3_val + scale4_val, 1);
   }
+  
+  Serial.println("STATE:");
+  Serial.println(curr_state);
   
   scale1_perc = scale1_val/total;
   scale2_perc = scale2_val/total;
@@ -151,7 +153,16 @@ void loop() {
   float scales[] = {scale1_perc, scale2_perc, scale3_perc, scale4_perc};
 
   int currClass = classify(scales);
-
+  
+  if (currClass == 2 && total < 30) {
+    currClass = lastClass;
+  }
+  
+   Serial.println("CLASS:");
+   Serial.println(currClass); 
+   Serial.println("LAST:");
+   Serial.println(lastClass);
+  
   if (override) {
     if (!COLLECT_DATA) Serial.println("Override Lock");
     digitalWrite(LCK, LOW);
@@ -161,15 +172,14 @@ void loop() {
     
     if (total / recent_avg_total < 0.7) {
       if (!COLLECT_DATA) Serial.println("Lock");
-      digitalWrite(LCK, LOW);  
+      digitalWrite(LCK, LOW);   
       curr_state = 1;
     }
   } else if (curr_state != 0 && lastClass != 2 && currClass != 0) {
 
-    if (recent_avg_total / total < 0.7) {
-        delay(250);
+    if (total > 30) {
         if (!COLLECT_DATA) Serial.println("Unlock");
-        digitalWrite(LCK, HIGH);  
+        digitalWrite(LCK, HIGH);
         curr_state = 0;
     }
     
