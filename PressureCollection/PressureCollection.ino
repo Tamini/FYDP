@@ -17,6 +17,7 @@
 #define CLK4  9
 #define OVR  A1
 #define LCK  13
+#define LED  A3
 
 
 // If it's false, it'll only show lock/unlock messages
@@ -131,19 +132,17 @@ void loop() {
 
   total = (scale1_val + scale2_val + scale3_val + scale4_val) + 1;
   
+  digitalWrite(LED, HIGH);  
   int over_int = digitalRead(OVR);
   override = true ? over_int == 1 : override;
   
-   if (true) {
+   if (COLLECT_DATA) {
     Serial.print(scale1_val, 1);    Serial.print(",");
     Serial.print(scale2_val, 1);    Serial.print(",");
     Serial.print(scale3_val, 1);    Serial.print(",");
     Serial.print(scale4_val, 1);    Serial.print(",");
     Serial.println(scale1_val + scale2_val + scale3_val + scale4_val, 1);
   }
-  
-  Serial.println("STATE:");
-  Serial.println(curr_state);
   
   scale1_perc = scale1_val/total;
   scale2_perc = scale2_val/total;
@@ -157,11 +156,6 @@ void loop() {
   if (currClass == 2 && total < 30) {
     currClass = lastClass;
   }
-  
-   Serial.println("CLASS:");
-   Serial.println(currClass); 
-   Serial.println("LAST:");
-   Serial.println(lastClass);
   
   if (override) {
     if (!COLLECT_DATA) Serial.println("Override Lock");
