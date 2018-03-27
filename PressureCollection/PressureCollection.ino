@@ -135,7 +135,7 @@ void loop() {
   
   digitalWrite(LED, HIGH);  
   int over_int = digitalRead(OVR);
-  override = true ? over_int == 1 && lastButtonState == 0: override;
+  override = !override ? over_int == 1 && lastButtonState == 0: override;
   lastButtonState = over_int;
   
    if (COLLECT_DATA) {
