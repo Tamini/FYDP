@@ -45,6 +45,7 @@ float recent_avg_total = 0;
 
 int curr_state = -1; // 0 = unlock, 1 = lock
 
+int lastButtonState = 0;
  
 void setup() {
 
@@ -134,7 +135,8 @@ void loop() {
   
   digitalWrite(LED, HIGH);  
   int over_int = digitalRead(OVR);
-  override = true ? over_int == 1 : override;
+  override = true ? over_int == 1 && lastButtonState == 0: override;
+  lastButtonState = over_int;
   
    if (COLLECT_DATA) {
     Serial.print(scale1_val, 1);    Serial.print(",");
